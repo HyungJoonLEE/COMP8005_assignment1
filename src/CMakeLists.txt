@@ -10,7 +10,7 @@ IF (LINT)
 ENDIF ()
 
 # Make an executable
-add_executable(MAIN ${COMMON_SOURCE_LIST}  ${MAIN_SOURCE_LIST} ${HEADER_LIST})
+add_executable(MAIN ${COMMON_SOURCE_LIST}  ${MAIN_SOURCE_LIST} ${HEADER_LIST} ../include/error.h error.c)
 
 # We need this directory, and users of our library will need it too
 target_include_directories(MAIN PRIVATE ../include)
