@@ -3,17 +3,21 @@
 cmake_minimum_required(VERSION 3.22)
 
 # Project name and a few useful settings. Other commands can pick up the results
-project(PROJECT
+project(COMP8005_assignment1
         VERSION 0.1
         DESCRIPTION ""
         LANGUAGES C)
 
 set(HEADER_LIST
         "${PROJECT_SOURCE_DIR}/include/common.h"
+        "${PROJECT_SOURCE_DIR}/include/linkedList.h"
+        "${PROJECT_SOURCE_DIR}/include/error.h"
         )
 
 set(COMMON_SOURCE_LIST
         "${PROJECT_SOURCE_DIR}/src/common.c"
+        "${PROJECT_SOURCE_DIR}/src/linkedList.c"
+        "${PROJECT_SOURCE_DIR}/src/error.c"
         )
 
 set(MAIN_SOURCE_LIST
