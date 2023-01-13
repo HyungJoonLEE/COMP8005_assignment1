@@ -3,9 +3,9 @@
 
 typedef struct ListNodeType {
     char id[32];
-    char hash_value[8];
+    char hash_id[15];
     char salt[32];
-    char hashed_password[67];
+    char hash_value[67];
     struct ListNodeType *pLink;
 }ListNode;
 
