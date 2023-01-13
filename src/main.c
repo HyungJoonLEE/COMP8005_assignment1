@@ -18,5 +18,6 @@ int main(int argc, char* argv[]) {
 
 
     displayLinkedList(user_list);
+    deleteLinkedList(user_list);
     return 0;
 }
