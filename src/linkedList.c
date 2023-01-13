@@ -152,10 +152,14 @@ int isEmpty(LinkedList* pList) {
 
 void displayLinkedList(LinkedList* pList) {
     if (pList != NULL) {
-        printf("Current number of user: %d\n", pList->currentElementCount);
-
+//        printf("Current number of user: %d\n", pList->currentElementCount);
         for (int i = 0; i < pList->currentElementCount; i++) {
-            printf("[%d] : %s\n", i, getLLElement(pList, i)->id);
+            printf("\n===============================================\n");
+            printf("id: %s\n", getLLElement(pList, i)->id);
+            printf("hash id: %s\n", getLLElement(pList, i)->hash_id);
+            printf("salt: %s\n", getLLElement(pList, i)->salt);
+            printf("hash value: %s\n", getLLElement(pList, i)->hash_value);
+            printf("===============================================\n");
         }
     }
     else {

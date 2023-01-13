@@ -9,6 +9,66 @@ IF (LINT)
     set(CMAKE_C_CLANG_TIDY "clang-tidy;-checks=*,-llvmlibc-restrict-system-libc-headers,-cppcoreguidelines-init-variables,-clang-analyzer-security.insecureAPI.strcpy,-concurrency-mt-unsafe,-android-cloexec-accept,-android-cloexec-dup,-google-readability-todo,-cppcoreguidelines-avoid-magic-numbers,-readability-magic-numbers,-cert-dcl03-c,-hicpp-static-assert,-misc-static-assert,-altera-struct-pack-align,-clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling;--quiet")
 ENDIF ()
 
+function(find_libxcrypt)
+    if (TARGET pwhash_crypt)
+        return()
+    endif ()
+
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(LIBXCRYPT IMPORTED_TARGET libxcrypt)
+
+    if (TARGET PkgConfig::LIBXCRYPT)
+        add_library(pwhash_crypt INTERFACE)
+        target_link_libraries(pwhash_crypt INTERFACE PkgConfig::LIBXCRYPT)
+        target_compile_definitions(pwhash_crypt INTERFACE HAVE_CRYPT_H)
+    endif ()
+endfunction()
+
+function(find_sys_crypt)
+    if (TARGET pwhash_crypt)
+        return()
+    endif ()
+
+    include(CheckIncludeFile)
+    include(CheckSymbolExists)
+
+    set(defs "")
+    set(CMAKE_REQUIRED_INCLUDES "")
+    set(CMAKE_REQUIRED_LIBRARIES "")
+
+    check_include_file("crypt.h" HAVE_CRYPT_H)
+    if (HAVE_CRYPT_H)
+        list(APPEND defs HAVE_CRYPT_H)
+        list(APPEND CMAKE_REQUIRED_INCLUDES "crypt.h")
+    endif ()
+
+    check_symbol_exists(crypt "unistd.h" HAVE_CRYPT)
+    if (NOT HAVE_CRYPT)
+        list(APPEND CMAKE_REQUIRED_LIBRARIES crypt)
+        check_symbol_exists(crypt "unistd.h" HAVE_CRYPT_WITH_LIB)
+    endif ()
+
+    if (HAVE_CRYPT OR HAVE_CRYPT_WITH_LIB)
+        add_library(pwhash_crypt INTERFACE)
+        target_link_libraries(pwhash_crypt INTERFACE ${CMAKE_REQUIRED_LIBRARIES})
+        target_compile_definitions(pwhash_crypt INTERFACE ${defs})
+    endif ()
+endfunction()
+
+option(PREFER_LIBXCRYPT "Prefer libxcrypt for crypt()" OFF)
+if (PREFER_LIBXCRYPT)
+    find_libxcrypt()
+    find_sys_crypt()
+else ()
+    find_sys_crypt()
+    find_libxcrypt()
+endif ()
+
+if (NOT TARGET pwhash_crypt)
+    message(FATAL_ERROR "Could not find a suitable crypt() implementation")
+endif ()
+
+
 # Make an executable
 add_executable(MAIN ${COMMON_SOURCE_LIST}  ${MAIN_SOURCE_LIST} ${HEADER_LIST} ../include/error.h error.c)
 
@@ -30,6 +90,8 @@ find_library(LIBM m REQUIRED)
 find_library(LIBSOCKET socket)
 
 target_link_libraries(MAIN PRIVATE ${LIBM})
+target_link_libraries(MAIN PRIVATE pwhash_crypt)
+
 
 set_target_properties(MAIN PROPERTIES OUTPUT_NAME "main")
 
