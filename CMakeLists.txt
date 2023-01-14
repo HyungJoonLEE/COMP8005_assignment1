@@ -24,7 +24,6 @@ set(MAIN_SOURCE_LIST
         "${PROJECT_SOURCE_DIR}/src/main.c"
         )
 
-
 ### Require out-of-source builds
 # this still creates a CMakeFiles directory and CMakeCache.txt- can we delete them?
 file(TO_CMAKE_PATH "${PROJECT_BINARY_DIR}/CMakeLists.txt" LOC_PATH)
@@ -46,16 +45,7 @@ if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     # Note this needs to be done in the main CMakeLists
     # since it calls enable_testing, which must be in the
     # main CMakeLists.
-    include(CTest)
 
-    # Docs only available if this is the main app
-    find_package(Doxygen)
-
-    if (Doxygen_FOUND)
-        add_subdirectory(docs)
-    else ()
-        message(STATUS "Doxygen not found, not building docs")
-    endif ()
 endif ()
 
 # The compiled library code is here
