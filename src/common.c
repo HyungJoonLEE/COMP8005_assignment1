@@ -97,10 +97,18 @@ void save_user(char* user_info, LinkedList* user_list, int i) {
         strcpy(getLLElement(user_list, i)->yescrypt_parm, user_info_var);
     }
 
-    if (strcmp(user_info_var, "1") == 0) strcpy(getLLElement(user_list, i)->hash_type, "MD5");
-    if (strcmp(user_info_var, "5") == 0) strcpy(getLLElement(user_list, i)->hash_type, "SHA-256");
-    if (strcmp(user_info_var, "6") == 0) strcpy(getLLElement(user_list, i)->hash_type, "SHA-512");
-
+    if (strcmp(user_info_var, "1") == 0) {
+        strcpy(getLLElement(user_list, i)->hash_id, "1");
+        strcpy(getLLElement(user_list, i)->hash_type, "MD5");
+    }
+    if (strcmp(user_info_var, "5") == 0) {
+        strcpy(getLLElement(user_list, i)->hash_id, "5");
+        strcpy(getLLElement(user_list, i)->hash_type, "SHA-256");
+    }
+    if (strcmp(user_info_var, "6") == 0) {
+        strcpy(getLLElement(user_list, i)->hash_id, "6");
+        strcpy(getLLElement(user_list, i)->hash_type, "SHA-512");
+    }
     save_userinfo(temp, user_list, i);
 }
 
@@ -138,6 +146,7 @@ void compare_password_with_salt(LinkedList *user_list) {
                     getLLElement(user_list, i)->hash_id,
                     getLLElement(user_list, i)->salt);
 
+        printf("salt setting = %s\n", salt_setting);
         strcpy(getLLElement(user_list, i)->salt_setting, salt_setting);
 
         start = clock();

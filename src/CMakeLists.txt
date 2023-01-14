@@ -68,7 +68,6 @@ if (NOT TARGET pwhash_crypt)
     message(FATAL_ERROR "Could not find a suitable crypt() implementation")
 endif ()
 
-
 # Make an executable
 add_executable(MAIN ${COMMON_SOURCE_LIST}  ${MAIN_SOURCE_LIST} ${HEADER_LIST} ../include/error.h error.c)
 
@@ -85,7 +84,6 @@ target_compile_options(MAIN PRIVATE -g)
 target_compile_options(MAIN PRIVATE -fstack-protector-all -ftrapv)
 target_compile_options(MAIN PRIVATE -Wpedantic -Wall -Wextra)
 target_compile_options(MAIN PRIVATE -Wdouble-promotion -Wformat-nonliteral -Wformat-security -Wformat-y2k -Wnull-dereference -Winit-self -Wmissing-include-dirs -Wswitch-default -Wswitch-enum -Wunused-local-typedefs -Wstrict-overflow=5 -Wmissing-noreturn -Walloca -Wfloat-equal -Wdeclaration-after-statement -Wshadow -Wpointer-arith -Wabsolute-value -Wundef -Wexpansion-to-defined -Wunused-macros -Wno-endif-labels -Wbad-function-cast -Wcast-qual -Wwrite-strings -Wconversion -Wdangling-else -Wdate-time -Wempty-body -Wsign-conversion -Wfloat-conversion -Waggregate-return -Wstrict-prototypes -Wold-style-definition -Wmissing-prototypes -Wmissing-declarations -Wpacked -Wredundant-decls -Wnested-externs -Winline -Winvalid-pch -Wlong-long -Wvariadic-macros -Wdisabled-optimization -Wstack-protector -Woverlength-strings)
-
 find_library(LIBM m REQUIRED)
 find_library(LIBSOCKET socket)
 
