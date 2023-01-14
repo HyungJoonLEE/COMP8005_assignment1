@@ -80,30 +80,40 @@ void find_user(char* file_list, LinkedList* user_list) {
 
 void save_user(char* user_info, LinkedList* user_list, int i) {
     char temp[256] = {0};
+    char without_date[256] = {0};
     char* user_info_var = NULL;
-    unsigned long yescript_flag_len = 0;
 
     strcpy(temp, user_info);
     user_info += strlen(getLLElement(user_list, i)->id) + 1;
+    strcpy(without_date, user_info);
+    strtok(without_date, ":");
+    strcpy(getLLElement(user_list, i)->original, without_date);
+
     user_info_var = strtok(user_info, "$");
     if (strcmp(user_info_var, "y") == 0) {
-        strcpy(getLLElement(user_list, i)->hash_id, "yescrypt");
+        strcpy(getLLElement(user_list, i)->hash_id, "y");
+        strcpy(getLLElement(user_list, i)->hash_type, "yescrypt");
         user_info_var = strtok(NULL, "$");
-        yescript_flag_len = strlen(user_info_var);
-        process_yescrypt(temp, user_list, i, yescript_flag_len);
+        strcpy(getLLElement(user_list, i)->yescrypt_parm, user_info_var);
     }
-    else {
-        if (strcmp(user_info_var, "1") == 0) strcpy(getLLElement(user_list, i)->hash_id, "MD5");
-        if (strcmp(user_info_var, "5") == 0) strcpy(getLLElement(user_list, i)->hash_id, "SHA-256");
-        if (strcmp(user_info_var, "6") == 0) strcpy(getLLElement(user_list, i)->hash_id, "SHA-512");
-        process_sha(temp, user_list, i);
-    }
+
+    if (strcmp(user_info_var, "1") == 0) strcpy(getLLElement(user_list, i)->hash_type, "MD5");
+    if (strcmp(user_info_var, "5") == 0) strcpy(getLLElement(user_list, i)->hash_type, "SHA-256");
+    if (strcmp(user_info_var, "6") == 0) strcpy(getLLElement(user_list, i)->hash_type, "SHA-512");
+
+    save_userinfo(temp, user_list, i);
 }
 
 
-void process_yescrypt(char* user_info, LinkedList* user_list, int i, unsigned long yescript_flag_len) {
+void save_userinfo(char* user_info, LinkedList* user_list, int i) {
     char* user_info_var;
-    user_info += strlen(getLLElement(user_list, i)->id) + yescript_flag_len + 5;
+    user_info += strlen(getLLElement(user_list, i)->id) + strlen(getLLElement(user_list, i)->hash_id);
+
+    if (strcmp(getLLElement(user_list, i)->hash_id, "y") == 0)
+        user_info += strlen(getLLElement(user_list, i)->yescrypt_parm) + 4;
+    else
+        user_info += 3;
+
     user_info_var = strtok(user_info, "$");
     strcpy(getLLElement(user_list, i)->salt, user_info_var);
     user_info_var = strtok(NULL, ":");
@@ -111,15 +121,67 @@ void process_yescrypt(char* user_info, LinkedList* user_list, int i, unsigned lo
 }
 
 
-void process_sha(char* user_info, LinkedList* user_list, int i) {
-    char* user_info_var;
 
-    user_info += strlen(getLLElement(user_list, i)->id) + 4;
-    user_info_var = strtok(user_info, "$");
-    strcpy(getLLElement(user_list, i)->salt, user_info_var);
-    user_info_var = strtok(NULL, ":");
-    strcpy(getLLElement(user_list, i)->hash_value, user_info_var);
+void compare_password_with_salt(LinkedList *user_list) {
+    char salt_setting[200] = {0};
+    clock_t start, end;
+    float time;
+
+    for (int i = 0; i < user_list->currentElementCount; i++) {
+        if (strcmp(getLLElement(user_list, i)->hash_id, "y") == 0)
+            sprintf(salt_setting, "$%s$%s$%s",
+                    getLLElement(user_list, i)->hash_id,
+                    getLLElement(user_list, i)->yescrypt_parm,
+                    getLLElement(user_list, i)->salt);
+        else
+            sprintf(salt_setting, "$%s$%s",
+                    getLLElement(user_list, i)->hash_id,
+                    getLLElement(user_list, i)->salt);
+
+        strcpy(getLLElement(user_list, i)->salt_setting, salt_setting);
+
+        start = clock();
+        brute_force_call(user_list, PASS_LEN, i);
+        end = clock();
+
+        time = (float)(end - start) / CLOCKS_PER_SEC;
+        getLLElement(user_list, i)->time = time;
+    }
 }
 
 
+void brute_force_crack(LinkedList *user_list, char* str, int index, int maxDepth, int user_index, int* flag) {
+    if (*flag == 1) return;
 
+    for (int i = 0; i < 64; ++i) {
+        str[index] = passwd_arr[i];
+        if (index == maxDepth - 1) {
+            if (strcmp(crypt(str, getLLElement(user_list, user_index)->salt_setting),
+                       getLLElement(user_list, user_index)->original) == 0) {
+                strcpy(getLLElement(user_list, user_index)->password, str);
+                printf("%s (HIT)\n", str);
+                *flag = 1;
+                return;
+            }
+            printf("%s (MISS)\n", str);
+            getLLElement(user_list, user_index)->count++;
+        }
+        else {
+            brute_force_crack(user_list, str, index + 1, maxDepth, user_index, flag);
+        }
+    }
+}
+
+void brute_force_call(LinkedList *user_list, int maxLen, int user_index)
+{
+    char* buf = malloc(maxLen + 1);
+    int flag = 0;
+
+    for (int i = 1; i <= maxLen; i++) {
+        memset(buf, 0, maxLen + 1);
+        brute_force_crack(user_list, buf, 0, i, user_index, &flag);
+        if (flag == 1) break;
+    }
+
+    free(buf);
+}

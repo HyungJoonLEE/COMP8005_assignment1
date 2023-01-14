@@ -156,9 +156,12 @@ void displayLinkedList(LinkedList* pList) {
         for (int i = 0; i < pList->currentElementCount; i++) {
             printf("\n===============================================\n");
             printf("id: %s\n", getLLElement(pList, i)->id);
-            printf("hash id: %s\n", getLLElement(pList, i)->hash_id);
+            printf("hash type: %s\n", getLLElement(pList, i)->hash_type);
             printf("salt: %s\n", getLLElement(pList, i)->salt);
-            printf("hash value: %s\n", getLLElement(pList, i)->hash_value);
+            printf("hash value: %s\n\n", getLLElement(pList, i)->hash_value);
+            printf("password: %s\n", getLLElement(pList, i)->password);
+            printf("trial count: %d\n", getLLElement(pList, i)->count);
+            printf("time consumed: %f seconds\n", (double) getLLElement(pList, i)->time);
             printf("===============================================\n");
         }
     }
