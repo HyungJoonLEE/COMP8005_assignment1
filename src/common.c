@@ -146,7 +146,6 @@ void compare_password_with_salt(LinkedList *user_list) {
                     getLLElement(user_list, i)->hash_id,
                     getLLElement(user_list, i)->salt);
 
-        printf("salt setting = %s\n", salt_setting);
         strcpy(getLLElement(user_list, i)->salt_setting, salt_setting);
 
         start = clock();
