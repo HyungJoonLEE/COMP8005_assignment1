@@ -28,7 +28,7 @@ void save_user(char* user_info, LinkedList* user_list, int i);
 void save_userinfo(char* user_info, LinkedList* user_list, int i);
 void compare_password_with_salt(LinkedList *user_list);
 void brute_force_call(LinkedList *user_list, int maxLen, int user_index);
-void brute_force_crack(LinkedList *user_list, char* str, int index, int maxDepth, int user_index, int* flag);
+void brute_force_crack(LinkedList *user_list, char* str, int index, int position, int user_index, int* flag);
 
 
 

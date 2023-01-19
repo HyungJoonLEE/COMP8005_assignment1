@@ -158,12 +158,12 @@ void compare_password_with_salt(LinkedList *user_list) {
 }
 
 
-void brute_force_crack(LinkedList *user_list, char* str, int index, int maxDepth, int user_index, int* flag) {
+void brute_force_crack(LinkedList *user_list, char* str, int index, int position, int user_index, int* flag) {
     if (*flag == 1) return;
 
     for (int i = 0; i < 64; ++i) {
         str[index] = passwd_arr[i];
-        if (index == maxDepth - 1) {
+        if (index == position - 1) {
             if (strcmp(crypt(str, getLLElement(user_list, user_index)->salt_setting),
                        getLLElement(user_list, user_index)->original) == 0) {
                 strcpy(getLLElement(user_list, user_index)->password, str);
@@ -175,7 +175,7 @@ void brute_force_crack(LinkedList *user_list, char* str, int index, int maxDepth
             getLLElement(user_list, user_index)->count++;
         }
         else {
-            brute_force_crack(user_list, str, index + 1, maxDepth, user_index, flag);
+            brute_force_crack(user_list, str, index + 1, position, user_index, flag);
         }
     }
 }
