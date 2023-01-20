@@ -4,7 +4,7 @@
 typedef struct ListNodeType {
     char id[32];
     char hash_id[4];
-    char yescrypt_parm[10];
+    char crypt_parm[10];
     char hash_type[15];
     char salt[64];
     char salt_setting[128];
