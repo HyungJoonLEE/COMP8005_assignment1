@@ -94,7 +94,7 @@ void save_user(char* user_info, LinkedList* user_list, int i) {
         strcpy(getLLElement(user_list, i)->hash_id, "y");
         strcpy(getLLElement(user_list, i)->hash_type, "yescrypt");
         user_info_var = strtok(NULL, "$");
-        strcpy(getLLElement(user_list, i)->yescrypt_parm, user_info_var);
+        strcpy(getLLElement(user_list, i)->crypt_parm, user_info_var);
     }
 
     if (strcmp(user_info_var, "1") == 0) {
@@ -109,6 +109,12 @@ void save_user(char* user_info, LinkedList* user_list, int i) {
         strcpy(getLLElement(user_list, i)->hash_id, "6");
         strcpy(getLLElement(user_list, i)->hash_type, "SHA-512");
     }
+    if (strcmp(user_info_var, "2b") == 0) {
+        strcpy(getLLElement(user_list, i)->hash_id, "2b");
+        strcpy(getLLElement(user_list, i)->hash_type, "Blowfish");
+    }
+
+
     save_userinfo(temp, user_list, i);
 }
 
@@ -117,8 +123,9 @@ void save_userinfo(char* user_info, LinkedList* user_list, int i) {
     char* user_info_var;
     user_info += strlen(getLLElement(user_list, i)->id) + strlen(getLLElement(user_list, i)->hash_id);
 
-    if (strcmp(getLLElement(user_list, i)->hash_id, "y") == 0)
-        user_info += strlen(getLLElement(user_list, i)->yescrypt_parm) + 4;
+    if (strcmp(getLLElement(user_list, i)->hash_id, "y") == 0
+            || strcmp(getLLElement(user_list, i)->hash_id, "2b") == 0)
+        user_info += strlen(getLLElement(user_list, i)->crypt_parm) + 4;
     else
         user_info += 3;
 
@@ -136,10 +143,11 @@ void compare_password_with_salt(LinkedList *user_list) {
     float time;
 
     for (int i = 0; i < user_list->currentElementCount; i++) {
-        if (strcmp(getLLElement(user_list, i)->hash_id, "y") == 0)
+        if (strcmp(getLLElement(user_list, i)->hash_id, "y") == 0
+                || strcmp(getLLElement(user_list, i)->hash_id, "2b") == 0)
             sprintf(salt_setting, "$%s$%s$%s",
                     getLLElement(user_list, i)->hash_id,
-                    getLLElement(user_list, i)->yescrypt_parm,
+                    getLLElement(user_list, i)->crypt_parm,
                     getLLElement(user_list, i)->salt);
         else
             sprintf(salt_setting, "$%s$%s",
@@ -149,7 +157,7 @@ void compare_password_with_salt(LinkedList *user_list) {
         strcpy(getLLElement(user_list, i)->salt_setting, salt_setting);
 
         start = clock();
-        brute_force_call(user_list, PASS_LEN, i);
+        recursive_init(user_list, PASS_LEN, i);
         end = clock();
 
         time = (float)(end - start) / CLOCKS_PER_SEC;
@@ -158,12 +166,12 @@ void compare_password_with_salt(LinkedList *user_list) {
 }
 
 
-void brute_force_crack(LinkedList *user_list, char* str, int index, int position, int user_index, int* flag) {
+void brute_force_crack(LinkedList *user_list, char* str, int index, int ptr, int user_index, int* flag) {
     if (*flag == 1) return;
 
-    for (int i = 0; i < 64; ++i) {
+    for (int i = 0; i < PASS_ARR_LEN; ++i) {
         str[index] = passwd_arr[i];
-        if (index == position - 1) {
+        if (index == ptr - 1) {
             if (strcmp(crypt(str, getLLElement(user_list, user_index)->salt_setting),
                        getLLElement(user_list, user_index)->original) == 0) {
                 strcpy(getLLElement(user_list, user_index)->password, str);
@@ -175,12 +183,12 @@ void brute_force_crack(LinkedList *user_list, char* str, int index, int position
             getLLElement(user_list, user_index)->count++;
         }
         else {
-            brute_force_crack(user_list, str, index + 1, position, user_index, flag);
+            brute_force_crack(user_list, str, index + 1, ptr, user_index, flag);
         }
     }
 }
 
-void brute_force_call(LinkedList *user_list, int maxLen, int user_index)
+void recursive_init(LinkedList *user_list, int maxLen, int user_index)
 {
     char* buf = malloc(maxLen + 1);
     int flag = 0;
