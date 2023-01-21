@@ -10,7 +10,7 @@ IF (LINT)
 ENDIF ()
 
 function(find_libxcrypt)
-    if (TARGET pwhash_crypt)
+    if (TARGET COMP8005_assignment1)
         return()
     endif ()
 
@@ -18,14 +18,14 @@ function(find_libxcrypt)
     pkg_check_modules(LIBXCRYPT IMPORTED_TARGET libxcrypt)
 
     if (TARGET PkgConfig::LIBXCRYPT)
-        add_library(pwhash_crypt INTERFACE)
-        target_link_libraries(pwhash_crypt INTERFACE PkgConfig::LIBXCRYPT)
-        target_compile_definitions(pwhash_crypt INTERFACE HAVE_CRYPT_H)
+        add_library(COMP8005_assignment1 INTERFACE)
+        target_link_libraries(COMP8005_assignment1 INTERFACE PkgConfig::LIBXCRYPT)
+        target_compile_definitions(COMP8005_assignment1 INTERFACE HAVE_CRYPT_H)
     endif ()
 endfunction()
 
 function(find_sys_crypt)
-    if (TARGET pwhash_crypt)
+    if (TARGET COMP8005_assignment1)
         return()
     endif ()
 
@@ -49,9 +49,9 @@ function(find_sys_crypt)
     endif ()
 
     if (HAVE_CRYPT OR HAVE_CRYPT_WITH_LIB)
-        add_library(pwhash_crypt INTERFACE)
-        target_link_libraries(pwhash_crypt INTERFACE ${CMAKE_REQUIRED_LIBRARIES})
-        target_compile_definitions(pwhash_crypt INTERFACE ${defs})
+        add_library(COMP8005_assignment1 INTERFACE)
+        target_link_libraries(COMP8005_assignment1 INTERFACE ${CMAKE_REQUIRED_LIBRARIES})
+        target_compile_definitions(COMP8005_assignment1 INTERFACE ${defs})
     endif ()
 endfunction()
 
@@ -64,7 +64,7 @@ else ()
     find_libxcrypt()
 endif ()
 
-if (NOT TARGET pwhash_crypt)
+if (NOT TARGET COMP8005_assignment1)
     message(FATAL_ERROR "Could not find a suitable crypt() implementation")
 endif ()
 
@@ -90,7 +90,7 @@ find_library(LIBM m REQUIRED)
 find_library(LIBSOCKET socket)
 
 target_link_libraries(MAIN PRIVATE ${LIBM})
-target_link_libraries(MAIN PRIVATE pwhash_crypt)
+target_link_libraries(MAIN PRIVATE COMP8005_assignment1)
 
 
 set_target_properties(MAIN PROPERTIES OUTPUT_NAME "main")

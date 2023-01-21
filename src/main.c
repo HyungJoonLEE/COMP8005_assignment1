@@ -7,11 +7,15 @@ int main(int argc, char* argv[]) {
     LinkedList *user_list = NULL;
 
     user_list = createLinkedList();
+    option_init(file_directory);
     parse_command(argc, argv, file_directory, user_list);
-    readFromShadow(file_directory, file_list);
+    read_from_shadow(file_directory, file_list);
     find_user(file_list, user_list);
     compare_password_with_salt(user_list);
     displayLinkedList(user_list);
+    for (int i = 0; i < getLinkedListLength(user_list); i++) {
+        removeLLElement(user_list, i);
+    }
     deleteLinkedList(user_list);
     return 0;
 }

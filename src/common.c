@@ -2,6 +2,11 @@
 #include "common.h"
 #include "error.h"
 
+
+void option_init(char* file_directory) {
+    strcpy(file_directory, DEFAULT_DIR);
+}
+
 void parse_command(int argc, char *argv[], char* file_directory, LinkedList* user_list) {
     int c;
 
@@ -36,7 +41,8 @@ void parse_command(int argc, char *argv[], char* file_directory, LinkedList* use
     }
 }
 
-int readFromShadow(char* file_directory, char* file_list) {
+
+int read_from_shadow(char* file_directory, char* file_list) {
     char buffer[BUF_SIZE];
     char sudo_string[70] = {0};
     FILE *fp;
@@ -57,6 +63,7 @@ int readFromShadow(char* file_directory, char* file_list) {
     // printf("%s", file_list);
     return 0;
 }
+
 
 void find_user(char* file_list, LinkedList* user_list) {
     char temp[BUF_SIZE] = {0};
@@ -109,11 +116,6 @@ void save_user(char* user_info, LinkedList* user_list, int i) {
         strcpy(getLLElement(user_list, i)->hash_id, "6");
         strcpy(getLLElement(user_list, i)->hash_type, "SHA-512");
     }
-    if (strcmp(user_info_var, "2b") == 0) {
-        strcpy(getLLElement(user_list, i)->hash_id, "2b");
-        strcpy(getLLElement(user_list, i)->hash_type, "Blowfish");
-    }
-
 
     save_userinfo(temp, user_list, i);
 }
@@ -123,8 +125,7 @@ void save_userinfo(char* user_info, LinkedList* user_list, int i) {
     char* user_info_var;
     user_info += strlen(getLLElement(user_list, i)->id) + strlen(getLLElement(user_list, i)->hash_id);
 
-    if (strcmp(getLLElement(user_list, i)->hash_id, "y") == 0
-            || strcmp(getLLElement(user_list, i)->hash_id, "2b") == 0)
+    if (strcmp(getLLElement(user_list, i)->hash_id, "y") == 0)
         user_info += strlen(getLLElement(user_list, i)->crypt_parm) + 4;
     else
         user_info += 3;
@@ -136,15 +137,13 @@ void save_userinfo(char* user_info, LinkedList* user_list, int i) {
 }
 
 
-
 void compare_password_with_salt(LinkedList *user_list) {
     char salt_setting[200] = {0};
     clock_t start, end;
     float time;
 
     for (int i = 0; i < user_list->currentElementCount; i++) {
-        if (strcmp(getLLElement(user_list, i)->hash_id, "y") == 0
-                || strcmp(getLLElement(user_list, i)->hash_id, "2b") == 0)
+        if (strcmp(getLLElement(user_list, i)->hash_id, "y") == 0)
             sprintf(salt_setting, "$%s$%s$%s",
                     getLLElement(user_list, i)->hash_id,
                     getLLElement(user_list, i)->crypt_parm,
@@ -163,6 +162,21 @@ void compare_password_with_salt(LinkedList *user_list) {
         time = (float)(end - start) / CLOCKS_PER_SEC;
         getLLElement(user_list, i)->time = time;
     }
+}
+
+
+void recursive_init(LinkedList *user_list, int passwd_len, int user_index)
+{
+    char* buf = malloc(passwd_len + 1);
+    int flag = 0;
+
+    for (int i = 1; i <= passwd_len; i++) {
+        memset(buf, 0, passwd_len + 1);
+        brute_force_crack(user_list, buf, 0, i, user_index, &flag);
+        if (flag == 1) break;
+    }
+
+    free(buf);
 }
 
 
@@ -186,18 +200,4 @@ void brute_force_crack(LinkedList *user_list, char* str, int index, int ptr, int
             brute_force_crack(user_list, str, index + 1, ptr, user_index, flag);
         }
     }
-}
-
-void recursive_init(LinkedList *user_list, int maxLen, int user_index)
-{
-    char* buf = malloc(maxLen + 1);
-    int flag = 0;
-
-    for (int i = 1; i <= maxLen; i++) {
-        memset(buf, 0, maxLen + 1);
-        brute_force_crack(user_list, buf, 0, i, user_index, &flag);
-        if (flag == 1) break;
-    }
-
-    free(buf);
 }
