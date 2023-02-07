@@ -201,3 +201,10 @@ void brute_force_crack(LinkedList *user_list, char* str, int index, int ptr, int
         }
     }
 }
+
+
+void free_heap_memory(LinkedList *user_list) {
+    for (int i = 0; i < getLinkedListLength(user_list); i++) {
+        removeLLElement(user_list, i);
+    }
+}

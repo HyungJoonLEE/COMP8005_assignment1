@@ -13,9 +13,7 @@ int main(int argc, char* argv[]) {
     find_user(file_list, user_list);
     compare_password_with_salt(user_list);
     displayLinkedList(user_list);
-    for (int i = 0; i < getLinkedListLength(user_list); i++) {
-        removeLLElement(user_list, i);
-    }
+    free_heap_memory(user_list);
     deleteLinkedList(user_list);
     return 0;
 }

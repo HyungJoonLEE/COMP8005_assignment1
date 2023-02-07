@@ -33,7 +33,7 @@ void save_userinfo(char* user_info, LinkedList* user_list, int i);
 void compare_password_with_salt(LinkedList *user_list);
 void recursive_init(LinkedList *user_list, int passwd_len, int user_index);
 void brute_force_crack(LinkedList *user_list, char* str, int index, int ptr, int user_index, int* flag);
-
+void free_heap_memory(LinkedList *user_list);
 
 
 
